@@ -52,8 +52,8 @@ class ruleMining:
         ouf.close()
         outfile = "rules" + str(num) + ".txt"
         #cluster is a list of strings
-		if len(cluster) == 1:
-			return (cluster[0][cluster[0].rfind(",")+1:])
+        if len(cluster) == 1:
+            return (cluster[0][cluster[0].rfind(",")+1:])
         elif(len(cluster)<10):
             command = "apriori.exe -k, -m2 -tr -o -s90 -c70" + " infile.txt " + outfile 
         else:
@@ -68,8 +68,8 @@ class ruleMining:
     def generateClassifiers(self, ruleFiles, classes):
         ruleClassifiers = []
         for file in ruleFiles:
-			if ".txt" not in file:
-				return [file]
+            if ".txt" not in file:
+                return [file]
             inf = open(file, "r")
             linedump = inf.readlines()
             inf.close()
