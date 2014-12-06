@@ -55,11 +55,17 @@ class ruleMining:
 def callKMeans(trainingClusteringList, numClusters, distance):
     #Generate Weka .arff file
     createWekaFile(trainingClusteringList) #file name is reuters.arff
-
-    pass
-    #command = "./helper/KMeansClustering " + filename +" "+ str(numClusters) + " " + str(distance) + " " + 
-    #print "Running command: ", command
-    #os.system(command)
+    # Run java file to cluster
+    command = "java -jar ./KMeansClustering.jar reuters.arff "+ str(numClusters) + " " + str(distance);
+    os.system(command)
+    # Read centroids from file and return list of lists
+    centroids = []
+    inf = open("centroids.txt",'r')
+    linedump = inf.readlines();
+    for line in linedump:
+        centroids.append(line)
+    #return the centroids
+    return centroids
     #return cluster centroids in the form: list of lists
     #centroids = [[centroid1], ...., [centroidN]]
 
@@ -173,7 +179,7 @@ def generateTrainingTestSets(partitions, num):
 
     return (trainingSet, testSet)
  
-def generateRulePartitions(centroids, trainingSet):
+def generateRulePartitions(centroids, trainingSet, distanceMetric):
     return [[],[],[]]
     #remove doc ID and add topics and places to transaction
     #use FV3.txt and use comma separated
@@ -208,7 +214,7 @@ def main():
  #       (sup,conf) = rm.parseOptions()
 #        rm.cleanUp()
     #    rm.callApriori(sup,conf,outFile)
-
+        exit()
 if __name__ == "__main__":
     main()
     
