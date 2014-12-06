@@ -40,16 +40,23 @@ class ruleMining:
         ouf.write("\n")
         ouf.close()
 
-        #Call apriori script to mine rules
+    #Call apriori script to mine rules
     def callApriori(self, cluster, sup, conf, num):
-        fname = "rules" + str(num) + ".txt"
-        pass
-        #TODO: return a filename where the apriori rules are stored in
-        #cluster is a list of lists (write to file)
-    #    command = "./helper/apriori -k, -tr -s" + str(sup) + " -c" + str(conf) + " -R" + self.appearances +" " + self.cleanFile + " " + self.outfile
-    #    print "Running command: ", command
-    #    os.system(command)
-        #return list of rules
+        #Write cluster to file infile
+        ouf = open("infile.txt",'w')
+        for i in range(len(cluster)):
+            ouf.write(cluster[i])
+            ouf.write("\n")
+        ouf.close()
+        outfileNames = []
+        outfile = "rules" + str(num) + ".txt"
+        #cluster is a list of strings
+        command = "./apriori -k, -m2 -tr -o -s" + str(sup) + " -c" + str(conf) + " infile.txt " + outfile 
+        print ("Running command: ", command)
+        os.system(command)
+        #return list of rule file names
+        outfileNames.extend(outfile)       
+	return outfileNames
              
     def generateClassifiers(self, rules):
         pass
@@ -254,8 +261,10 @@ def main():
             clusterCentroids = callKMeans(trainingClusteringList, clusterNum, distanceMetric) 
             clusters = generateRulePartitions(clusterCentroids, trainingSet, distanceMetric) #TODO: jeremy
             rules = []
+            i=1
             for cluster in clusters:
-                rules.append(rm.callApriori(cluster, support, confidence, num)) #TODO: manjari
+                rules.append(rm.callApriori(cluster, support, confidence, i)) #TODO: manjari
+                i = i+1
             classifiers = rm.generateClassifiers(rules)     #TODO:jeremy
             #TODO: classify elements in testSet and record analytics
         else:
