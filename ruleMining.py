@@ -1,5 +1,6 @@
 import os
 import random
+import math
 from optparse import OptionParser
 
 class ruleMining:
@@ -40,8 +41,10 @@ class ruleMining:
         ouf.close()
 
         #Call apriori script to mine rules
-    def callApriori(self, cluster, sup, conf):
+    def callApriori(self, cluster, sup, conf, num):
+        fname = "rules" + str(num) + ".txt"
         pass
+        #TODO: return a filename where the apriori rules are stored in
         #cluster is a list of lists (write to file)
     #    command = "./helper/apriori -k, -tr -s" + str(sup) + " -c" + str(conf) + " -R" + self.appearances +" " + self.cleanFile + " " + self.outfile
     #    print "Running command: ", command
@@ -53,17 +56,21 @@ class ruleMining:
 
 #Call kmeans progrmam to cluster
 def callKMeans(trainingClusteringList, numClusters, distance):
+   # return [[],[]]
     #Generate Weka .arff file
     createWekaFile(trainingClusteringList) #file name is reuters.arff
     # Run java file to cluster
     command = "java -jar ./KMeansClustering.jar reuters.arff "+ str(numClusters) + " " + str(distance);
+    #command = "javac KMeansClustering.jar reuters.arff "+ str(numClusters) + " " + str(distance);
     os.system(command)
     # Read centroids from file and return list of lists
     centroids = []
     inf = open("centroids.txt",'r')
     linedump = inf.readlines();
     for line in linedump:
-        centroids.append(line)
+        sCents = line.strip("\n").split(",")
+        cents = [float(a) for a in sCents]
+        centroids.append(cents)
     #return the centroids
     return centroids
     #return cluster centroids in the form: list of lists
@@ -111,7 +118,7 @@ def parseOptions():
         numC = options.numClusters
     if options.distance:
         dist = options.distance
-    return (sup, conf, numC, dist)        
+    return (int(sup), int(conf), int(numC), int(dist))        
  
 #Partitions the data into 10 different sets used for 10-fold cross validation
 def partitionData():
@@ -179,10 +186,62 @@ def generateTrainingTestSets(partitions, num):
 
     return (trainingSet, testSet)
  
+ #From the training set and cluster centroids, this function groups the transactional
+ #data into the closest centroid to be fed into the Apriori rule mining software
 def generateRulePartitions(centroids, trainingSet, distanceMetric):
-    return [[],[],[]]
-    #remove doc ID and add topics and places to transaction
-    #use FV3.txt and use comma separated
+    inf = open("FV4.txt", "r")
+    linedump = inf.readlines()
+    inf.close()
+    
+    clusters = []
+    
+#    inf2 = open("centroids.txt","r")
+#    lines = inf2.readlines()
+#    inf2.close()
+#    centroids = [[float(a) for a in b.strip("\n").split(",")] for b in lines]
+    
+    for num in range(len(centroids)):
+        clusters.append([])
+    
+    for vector in trainingSet:
+        position = int(vector[1:vector.find(",")])
+        line = linedump[position]
+        line = line[1:line.find(">")].replace(" ","").split(",")
+        dataVector = [float(a) for a in line[1:]]
+        minDistance = -1
+        minDistanceCluster = 0
+        for num, centroid in enumerate(centroids):
+            distance = distanceBetweenVectors(centroid, dataVector, distanceMetric)
+            if distance < minDistance or minDistance == -1:
+                minDistance = distance
+                minDistanceCluster = num
+        clusters[minDistanceCluster].append(createAprioriDataVector(vector))        
+        
+    return clusters    
+ 
+#Computes the distance between vector1 and vector2
+def distanceBetweenVectors(vector1, vector2, distanceMetric):
+    distance = 0
+    if distanceMetric == 1: #Manhattan distance
+        for num in range(len(vector1)):
+            distance = distance + abs(vector1[num]-vector2[num])
+    else:   #Euclidean distance
+        for num in range(len(vector1)):
+            distance = distance + math.pow((vector1[num]-vector2[num]),2)
+        distance = math.pow(distance, 0.5)
+    return distance
+
+#Takes the transactional feature vector from the training set and converts it into a comma separated string
+#that can be used by the Apriori software
+def createAprioriDataVector(vector):
+    class_pos = vector.find("<", 2)
+    words = vector[vector.find(",")+1:class_pos-1].replace(" ","") + ","
+    places = vector[class_pos+1:vector.find(">",class_pos)].replace(" ","") + ","
+    if places == ",": places = ""
+    topics = vector[vector.rfind("<")+1:vector.rfind(">")].replace(" ","")
+    if topics == "": places = places[:-1]
+    s = words + places + topics
+    return s
  
 def main():
     (support, confidence, clusterNum, distanceMetric) = parseOptions()
@@ -192,11 +251,11 @@ def main():
         (trainingSet, testSet) = generateTrainingTestSets(partitions, num) 
         if clusterNum > 1:  #Perform Clustering
             trainingClusteringList = generateClusteringSet(trainingSet)
-            clusterCentroids = callKMeans(trainingClusteringList, clusterNum, distanceMetric) #TODO:manjari
+            clusterCentroids = callKMeans(trainingClusteringList, clusterNum, distanceMetric) 
             clusters = generateRulePartitions(clusterCentroids, trainingSet, distanceMetric) #TODO: jeremy
             rules = []
             for cluster in clusters:
-                rules.append(rm.callApriori(cluster, support, confidence)) #TODO: manjari
+                rules.append(rm.callApriori(cluster, support, confidence, num)) #TODO: manjari
             classifiers = rm.generateClassifiers(rules)     #TODO:jeremy
             #TODO: classify elements in testSet and record analytics
         else:
@@ -214,7 +273,7 @@ def main():
  #       (sup,conf) = rm.parseOptions()
 #        rm.cleanUp()
     #    rm.callApriori(sup,conf,outFile)
-        exit()
+        
 if __name__ == "__main__":
     main()
     
