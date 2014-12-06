@@ -52,7 +52,10 @@ class ruleMining:
         ouf.close()
         outfile = "rules" + str(num) + ".txt"
         #cluster is a list of strings
-        command = "apriori.exe -k, -m2 -tr -o -s" + str(sup) + " -c" + str(conf) + " infile.txt " + outfile 
+        if(len(cluster)<10):
+            command = "apriori.exe -k, -m2 -tr -o -s40 -c60" + infile.txt + outfile 
+        else
+            command = "apriori.exe -k, -m2 -tr -o -s -" + str(sup) + " -c" + str(conf) + " infile.txt " + outfile 
         print ("Running command: ", command)
         print ("Cluster was size:" + str(len(cluster)))
         os.system(command)
@@ -351,6 +354,7 @@ def printResults(fold_accuracies, totalTime, aprioriTime, clusteringTime, cluste
 #Cleans up the extra clutter in the directory    
 def cleanDirectory():
     os.remove("infile.txt")
+    os.remove("reuters.arff")
     if os.path.exists("centroids.txt"): os.remove("centroids.txt")
     rulesFiles = glob.glob("rules*")
     for file in rulesFiles:
