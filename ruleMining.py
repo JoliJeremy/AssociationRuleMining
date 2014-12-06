@@ -52,10 +52,12 @@ class ruleMining:
         ouf.close()
         outfile = "rules" + str(num) + ".txt"
         #cluster is a list of strings
-        if(len(cluster)<10):
-            command = "apriori.exe -k, -m2 -tr -o -s40 -c60" + infile.txt + outfile 
-        else
-            command = "apriori.exe -k, -m2 -tr -o -s -" + str(sup) + " -c" + str(conf) + " infile.txt " + outfile 
+		if len(cluster) == 1:
+			return (cluster[0][cluster[0].rfind(",")+1:])
+        elif(len(cluster)<10):
+            command = "apriori.exe -k, -m2 -tr -o -s90 -c70" + " infile.txt " + outfile 
+        else:
+            command = "apriori.exe -k, -m2 -tr -o -s" + str(sup) + " -c" + str(conf) + " infile.txt " + outfile 
         print ("Running command: ", command)
         print ("Cluster was size:" + str(len(cluster)))
         os.system(command)
@@ -66,6 +68,8 @@ class ruleMining:
     def generateClassifiers(self, ruleFiles, classes):
         ruleClassifiers = []
         for file in ruleFiles:
+			if ".txt" not in file:
+				return [file]
             inf = open(file, "r")
             linedump = inf.readlines()
             inf.close()
@@ -182,7 +186,7 @@ def partitionData(sampling):
     linedump = inf.readlines()
     inf.close()
     
-    partitions = [[],[],[],[],[]]
+    partitions = [[],[],[]]
     allClasses = set([]) #Keeps track of all the classes we have (topics and places)
     index = 0
     size = len(linedump)
@@ -200,7 +204,7 @@ def partitionData(sampling):
             for word in classes: allClasses.add(word)
             sample += 1
         partitions[index].append(line)
-        index = (index+1)%5
+        index = (index+1)%3
         if sample == sampling: break
     return (partitions, allClasses)
 
