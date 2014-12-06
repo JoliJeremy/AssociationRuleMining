@@ -45,7 +45,7 @@ class ruleMining:
     #Call apriori script to mine rules
     def callApriori(self, cluster, sup, conf, num):
         #Write cluster to file infile
-        ouf = open("infile.txt",'w')
+        ouf = open("infile.txt",'w')   
         for i in range(len(cluster)):
             ouf.write(cluster[i])
             ouf.write("\n")
@@ -54,6 +54,8 @@ class ruleMining:
         #cluster is a list of strings
         if len(cluster) == 1:
             return (cluster[0][cluster[0].rfind(",")+1:])
+        elif (len(cluster) > 1 and len(cluster) < 6):
+            command = "apriori.exe -k, -m2 -tr -o -s95 -c90" + " infile.txt " + outfile 
         elif(len(cluster)<10):
             command = "apriori.exe -k, -m2 -tr -o -s90 -c70" + " infile.txt " + outfile 
         else:
