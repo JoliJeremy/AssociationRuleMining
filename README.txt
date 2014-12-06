@@ -20,65 +20,56 @@ In the directory are the following files:
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~IMPLEMENTATION~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ruleMining.py
-~~~~~~~~~~~~~~~~~~~~~~~
-The baseline.py script computes the pairwise Jaccard similarities between all
-the feature vectors by reading in data from the file FV4.txt. The results are
-stored in a similarity matrix where the element in row i and column j is the Jaccard similarity between the ith
-feature vector and the jth feature vector.  The output is written to 2 file - one contains the similarity matrix and 
-the other contains the time taken to compute it. The similarity matrix is stored in a .csv format and is named 
-(sampleSize)baselineSimilarityMatrix.csv; the time file is stored as (sampleSize)baselineTime.txt. If data isn't 
-sampled (default sample size-0), the files are stored as baselineSimilarityMatrix.csv and baselineTime.txt.
-If a sample size is specified the script also writes out the random indices
-generated used as samples and stores it to the file
-(samplesSize)sampleIndices.txt. This is done so as to enable MinHash.py to use
-the same documents when computing the estimated similarity matrices. The script
-ensures that the same index is not picked twice.
-
-This script uses the SciPy library's scipy.spatial.distance.jaccard function to compute
-the pairwise jaccard distance of 2 arrays without having to loop through each
-element. This was done in order to improve the efficiency. The library computes
-the distance metric which was then converted to a similarity metric by
-subtracting the distance value from 1.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 KMeanClustering.jar
-~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 This JAR file implements the k-means clustering algorithm. Code was borrowed from Lab4. It reads in an arff file and clusters
 it using a specified distance metric. It takes 3 input arguments - arff file name, number of clusters and the distance metric 
-to be used. 
+to be used. The JAR file was generated from a java file which uses weka libraries to cluster the data. This file is called 
+from within the python script wherever appropriate. The following is the syntax to call this file :
 
-Once all the min-hashing signatures are created, the pairwise Jaccard similarities are calculated in the 
-compute_jaccard_similarities() function.  This function stores the Jaccard similarities in a similarity matrix where
-row j and column k is the Jaccard similarity between the jth feature vector and kth feature vector.  In order to store
-such a large data structure (19043 x 19043 elements), an external python library, NumPy was used.  Rather than 
-instantiating a list of lists (which takes extremely long), NumPy can quickly create the data structure by relying
-on optimizations that vectorize the data structure.  This saves a significant amount of time.  Once the similarites
-are computed, the matrix is written to an output file in the write_to_file function.  The first two lines of the file
-are the total timing of the program (not including writing to the file) and the time to create the min-hash signatures,
-respectively.  The remaining lines output the similarity matrix where each line of the output file is a row of the 
-matrix.  The individual similarities are delimited by a comma.  
+java -jar KMeansClustering.jar arffFile numberOfClusters distanceMetric
+
+So the following example call will run k-means on reuters.arff file, with k being 8 and the distance metric as Manhattan:
+
+java -jar KMeansClustering.jar reuters.arff 8 1
+
+This JAR returns a text file, centroids.txt which contains the centroids of the clusters generated.
 
 apriori.exe: Implementation by Christian Borgelt, European Center for Soft Computing
-~~~~~~~~~~~~~~~~~~~~~~~
-This script reads in the time taken to compute the baseline and the k-minhash
-estimate of similarity matrices and the similarity matrices themselves. It then
-computes 2 measures of efficacy - mean squared error and relative mean error; as
-well as the efficiency of the two approaches (time taken). 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This script implements the the apriori algorithm to generate frequent item sets and association rules among other things. It 
+takes in an input file which has transactional data and writes the results out to either the console or an output file. This 
+executable is called from with the python script wherever appropriate.  The implementation allows several command line options 
+to allow for flexibility in usage. The following are the command line options used by us:
 
-Since the values of mean squared error and relative mean error computed were
-too small, a log model similar to the log-likelehood framework was used to
-scale up these values. 
+-k - represents the record seperator for the items in the output file(Used: ,)
+-m - minimum number of items per rule (Used: 2)
+-t - target to generate(rules(r)/frequent item set(s)/etc., Used: r)
+-o - uses original definition of support (antecedent and consequent)
+-s - minimum support value
+-c - minimum confidence value
+infile - file with transactions 
+outfile - file to which rules are written
 
-The mean squared error, relative mean error and time taken to compute the
-similarity matrices was them written to 3 seperate text files in a comma
-seperated fashion.
+The rules are written out in the following form:
+
+consequent<-antecedent (support, confidence)
+
+The following example command will find rules in the file infile.txt and write them to outfile.txt. It will use a minimium 
+support of 20 and confidence of 60. It will use the original definition of support and the minimum number of items in a rule 
+will be 2.
+
+apriori -k, -m2 -tr -o -s20 -c60 infile.txt outfile.txt
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~RUNNING THE PROGRAMS~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Lab6.sh
-~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 This script runs the python script ruleMining.py for a bunch of different parameter settings.
 
 ruleMining.py
-~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 This script has 5 command line options. These are as follows:
 
 -s, --support                   support value to be used by the apriori algorithm (Default: 20)
@@ -94,7 +85,7 @@ python ruleMining.py -k 1 -d 1 -s 20 -c 80
 This command will run on the entire data set, without clustering. The apriori algorithm will use minimum support as 20 and confidence as 80
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ADDITIONAL SOFTWARE~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~		
-If the script ruleMIning.py is run offline, make sure there is enough memory on whichever system is being used. Also needed are JRE and the apriori software which can be found at the following links:
+If the script ruleMining.py is run offline, make sure there is enough memory on whichever system is being used. Also needed are JRE and the apriori software which can be found at the following links:
 
 JRE: http://www.oracle.com/technetwork/java/javase/downloads/jre7-downloads-1880261.html
 Apriori: http://www.borgelt.net/apriori.html
@@ -102,7 +93,7 @@ Apriori: http://www.borgelt.net/apriori.html
 Choose the appropriate version based on the OS.
 
 
-***Note: 1. 
+***Note: 1. All support and confidence values listed here indicate a percentage value.
 		 2. If you would like to see an in-person demo of how to run any part of this lab, please contact:
          ledonne.5@osu.edu or akella.4@osu.edu
 		 
