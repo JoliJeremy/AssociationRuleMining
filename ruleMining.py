@@ -71,7 +71,8 @@ class ruleMining:
         ruleClassifiers = []
         for file in ruleFiles:
             if ".txt" not in file:
-                return [file]
+                ruleClassifiers.append([file])
+                continue
             inf = open(file, "r")
             linedump = inf.readlines()
             inf.close()
