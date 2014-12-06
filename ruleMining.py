@@ -54,9 +54,9 @@ class ruleMining:
         #cluster is a list of strings
         if len(cluster) == 1:
             return (cluster[0][cluster[0].rfind(",")+1:])
-        elif (len(cluster) > 1 and len(cluster) < 6):
-            command = "apriori.exe -k, -m2 -tr -o -s95 -c90" + " infile.txt " + outfile 
-        elif(len(cluster)<10):
+        elif (len(cluster) > 1 and len(cluster) < 10):
+            return ("defaultClassLabel0")
+        elif(len(cluster)<20):
             command = "apriori.exe -k, -m2 -tr -o -s90 -c70" + " infile.txt " + outfile 
         else:
             command = "apriori.exe -k, -m2 -tr -o -s" + str(sup) + " -c" + str(conf) + " infile.txt " + outfile 
