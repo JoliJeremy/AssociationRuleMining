@@ -3,6 +3,7 @@ import glob
 import random
 import math
 import time
+import gc
 from optparse import OptionParser
 
 class ruleMining:
@@ -56,8 +57,10 @@ class ruleMining:
             return (cluster[0][cluster[0].rfind(",")+1:])
         elif (len(cluster) > 1 and len(cluster) < 10):
             return ("defaultClassLabel0")
-        elif(len(cluster)<20):
+        elif (len(cluster)<20):
             command = "apriori.exe -k, -m2 -tr -o -s90 -c70" + " infile.txt " + outfile 
+        elif (len(cluster)>=20 and len(cluster)<100):
+            command = "apriori.exe -k, -m2 -tr -o -s70 -c70" + " infile.txt " + outfile
         else:
             command = "apriori.exe -k, -m2 -tr -o -s" + str(sup) + " -c" + str(conf) + " infile.txt " + outfile 
         print ("Running command: ", command)
@@ -98,7 +101,8 @@ class ruleMining:
                 dominantClass = max(classFrequencies, key=classFrequencies.get)
             orderedRules.append(dominantClass)
             ruleClassifiers.append(orderedRules)
-   
+        del linedump
+        gc.collect()
         return ruleClassifiers
               
     #Checks to see if the rule generated from the Apriori rule is valid and prunes          
@@ -129,11 +133,14 @@ def callKMeans(trainingClusteringList, numClusters, distance):
     # Read centroids from file and return list of lists
     centroids = []
     inf = open("centroids.txt",'r')
-    linedump = inf.readlines();
+    linedump = inf.readlines()
+    inf.close()
     for line in linedump:
         sCents = line.strip("\n").split(",")
         cents = [float(a) for a in sCents]
         centroids.append(cents)
+    del linedump
+    gc.collect()
     return centroids
     #return cluster centroids in the form: list of lists
     #centroids = [[centroid1], ...., [centroidN]]
@@ -209,6 +216,8 @@ def partitionData(sampling):
         partitions[index].append(line)
         index = (index+1)%3
         if sample == sampling: break
+    del linedump
+    gc.collect()
     return (partitions, allClasses)
 
 def checkForClasses(line):
@@ -248,7 +257,7 @@ def generateClusteringSet(trainingSet):
             else: dataVector.append("0")
         clusteringSet.append(dataVector)
     del linedump
-    
+    gc.collect()
     return clusteringSet
 
 #Creates a training and test set from the partitions   
@@ -278,7 +287,7 @@ def generateRulePartitions(centroids, trainingSet, distanceMetric):
         minDistanceCluster = findClosestCentroid(linedump[position], centroids, distanceMetric)
         clusters[minDistanceCluster].append(createAprioriDataVector(vector))        
     del linedump
-     
+    gc.collect() 
     return clusters    
  
 #Computes the distance between vector1 and vector2
@@ -308,7 +317,11 @@ def createAprioriDataVector(vector):
 #Finds the closest cluster centroid the data belongs to 
 def findClosestCentroid(line, clusterCentroids, distanceMetric):
     line = line[1:line.find(">")].replace(" ","").split(",")
-    dataVector = [float(a) for a in line[1:]]
+    dataVector = []
+    for datum in line[1:]:
+        if datum != "0": dataVector.append(1.0)
+        else: dataVector.append(0.0)
+    #dVector = [float(a) for a in line[1:]]
     minDistance = -1
     minDistanceCluster = 0
     for num, centroid in enumerate(clusterCentroids):
@@ -361,7 +374,7 @@ def printResults(fold_accuracies, totalTime, aprioriTime, clusteringTime, cluste
 #Cleans up the extra clutter in the directory    
 def cleanDirectory():
     os.remove("infile.txt")
-    os.remove("reuters.arff")
+    if os.path.exists("reuters.arff"): os.remove("reuters.arff")
     if os.path.exists("centroids.txt"): os.remove("centroids.txt")
     rulesFiles = glob.glob("rules*")
     for file in rulesFiles:
@@ -405,7 +418,8 @@ def main():
                 correct = correct + isCorrectClassification(classLabel, vector)
             fold_accuracies.append(correct/float(len(testSet))) 
             del linedump
-        else:
+            gc.collect()
+        else:   #No clustering
             cluster = []
             for vector in trainingSet:
                 cluster.append(createAprioriDataVector(vector))
@@ -415,10 +429,6 @@ def main():
             aprioriTime += aEndTime - aStartTime
             classifier = rm.generateClassifiers([outfile], classes)
             
-            #Test classifiers on the test set
-            inf = open("FV4.txt", "r")
-            linedump = inf.readlines()
-            inf.close()
             print ("Classifying test set using generated rules...")
             for vector in testSet:
                 classLabel = classify(classifier[0], vector)
