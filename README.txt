@@ -10,12 +10,12 @@ All the files for Lab 6 can be found at the directory:
 In the directory are the following files:
 1. Lab6.docx                           Lab 6 report write up
 2. README.txt                          This file you are reading
-3. ruleMining.py					   Python script for rule mining and classification		
+3. ruleMining.py	               Python script for rule mining and classification		
 4. KMeansClustering.jar                JAR file to cluster data
-5. apriori.exe 						   .exe which implements the apriori alogrithm (Windows OS)
-6. FV3.txt 							   The transactional feature vector file
+5. apriori.exe 			       .exe which implements the apriori alogrithm (Windows OS)
+6. FV3.txt 			       The transactional feature vector file
 7. FV4.txt                             The data vector style feature vector file
-8. results.txt 						   Results file with information about accuracy, efficieny etc.
+8. results.txt 			       Results file with information about accuracy, efficieny etc.
 9. Lab6.sh                             Shell script to run the python scripts
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~IMPLEMENTATION~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
