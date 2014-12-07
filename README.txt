@@ -13,10 +13,11 @@ In the directory are the following files:
 3. ruleMining.py	               Python script for rule mining and classification		
 4. KMeansClustering.jar                JAR file to cluster data
 5. apriori.exe 			       .exe which implements the apriori alogrithm (Windows OS)
-6. FV3.txt 			       The transactional feature vector file
-7. FV4.txt                             The data vector style feature vector file
-8. results.txt 			       Results file with information about accuracy, efficieny etc.
-9. Lab6.sh                             Shell script to run the python scripts
+6. apriori 			       .exe which implements the apriori alogrithm (Linux OS)
+7. FV3.txt 			       The transactional feature vector file
+8. FV4.txt                             The data vector style feature vector file
+9. results.txt 			       Results file with information about accuracy, efficieny etc.
+10. Lab6.sh                             Shell script to run the python scripts
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~IMPLEMENTATION~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ruleMining.py
@@ -149,7 +150,7 @@ Make sure to change the name of the file based on the OS. This change needs to b
 
 apriori.exe: Implementation by Christian Borgelt, European Center for Soft Computing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Even though this command doesn't need to be called seperately, a small change to the python script needs to be done based on the operating system being used. This is because of how executables are called in Windows vs Linux. For a Windows based system, we need to specify the extension expilictly. For Linux, we must not. The following example shows how to call looks for a Windows/Linux system:
+Even though this command doesn't need to be called seperately, a small change to the python script needs to be done based on the operating system being used. This is because of different executables for Windows and Linux. The following example shows how to call looks for a Windows/Linux system:
 
 Linux: command = "apriori -k, -m2 -tr -o -s90 -c70" + " infile.txt " + outfile 
 
