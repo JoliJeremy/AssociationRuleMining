@@ -62,6 +62,18 @@ its corresponding cluster.  In both the non clustering and clustering cases, the
 the classify() functio and the isCorrectClassification method checks to see if its assigned class label matches one of
 its actually topics or places in the data vector.  
 
+The last implementation detail that needs to be mentioned is the use of clustering.  when a large amount of data is used
+to generate the Association rules, the creation of rules is relatively fast because many item sets do not meet the 
+support supplied.  However, when the size of a cluster becomes smaller, especially under the size of 100, a majority
+of the itemsets generated are over the given support value.  Therefore, many more itemsets are considered and a significant
+amount of memory is consumed.  On several of our clusters under size 100, the itemset generation consumed all of memory and
+took up to 12 GB of RAM.  In order to deal with this, the commands were slightly modified to the apriori software.  In the
+case where the size of the cluster was larger or equal to 100, nothing was changed and the user's specified support and
+confidence were kept the same.  In the case where the size of the cluster was between 2 and 9, a default class label of
+"defaultClassLabel10" was assigned.  When the cluster size was between 10 and 19, the support and confidence to the 
+apriori software were changed to be 90 and 70, respectively.  Finally, when the size of the cluster was between 20 and 99,
+the support and confidence to the apriori software were changed to be 70 and 70, respectively.  This allowed for rules to
+still be generated without consuming all of memory.  
 
 KMeanClustering.jar
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
