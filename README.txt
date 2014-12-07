@@ -125,6 +125,26 @@ python ruleMining.py -k 1 -d 1 -s 20 -c 80
 
 This command will run on the entire data set, without clustering. The apriori algorithm will use minimum support as 20 and confidence as 80
 
+KMeanClustering.jar
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Even though this command doesn't need to be called seperately, a small change to the python script needs to be done based on the operating system being used. There are two versions of this JAR file, one for Linux and the other for Windows. These are named as KMeansClusteringWindows.jar and KMeansClusteringLinux.jar. The following example shows how to call looks for a Windows/Linux system:
+
+Linux: command = "java -jar ./KMeansClusteringLinux.jar reuters.arff "+ str(numClusters) + " " + str(distance);
+
+Windows: command = "java -jar ./KMeansClusteringWindows.jar reuters.arff "+ str(numClusters) + " " + str(distance);
+
+Make sure to change the name of the file based on the OS. This change needs to be done in the callKMeans() function in the ruleMining.py script at line 130.
+
+apriori.exe: Implementation by Christian Borgelt, European Center for Soft Computing
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Even though this command doesn't need to be called seperately, a small change to the python script needs to be done based on the operating system being used. This is because of how executables are called in Windows vs Linux. For a Windows based system, we need to specify the extension expilictly. For Linux, we must not. The following example shows how to call looks for a Windows/Linux system:
+
+Linux: command = "apriori -k, -m2 -tr -o -s90 -c70" + " infile.txt " + outfile 
+
+Windows: command = "apriori.exe -k, -m2 -tr -o -s90 -c70" + " infile.txt " + outfile 
+
+Make sure to make this change based on the OS. This change needs to be done in the callApriori() function in the ruleMining.py script at lines 61, 63 and 65.
+
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ADDITIONAL SOFTWARE~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~		
 If the script ruleMining.py is run offline, make sure there is enough memory on whichever system is being used. Also needed are JRE and the apriori software which can be found at the following links:
 
